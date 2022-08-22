@@ -1,0 +1,29 @@
+version: "2.4"
+services:
+  app:
+    build: .
+    environment:
+      - APP_VERSION=develop
+      - CANVAS_API_URL
+      - CANVAS_TOKEN
+      - LTI_KEY
+      - LTI_SECRET
+      - NODE_ENV=development
+      - TRUST_PROXY=uniquelocal
+    ports:
+      - "3000"
+    labels:
+      - "traefik.http.routers.ltitool.rule=Host(`dev.127.0.0.1.nip.io`)"
+      - "traefik.http.routers.ltitool.tls=true"
+      - "traefik.http.routers.ltitool.entrypoints=https"
+
+  reverse-proxy:
+    image: traefik:v2.0
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - $HOME/certs:/data/traefik:ro
+      - ./traefik:/etc/traefik:ro
